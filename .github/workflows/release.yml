@@ -1,0 +1,62 @@
+name: Release
+
+# Publier une version :
+# 1. Passer la version dans bca-media-cleaner.php (en-tête Version: et constante BCAMC_VERSION), puis commit et push.
+# 2. GitHub > Actions > Release > Run workflow.
+#    (Pousser un tag vX.Y.Z déclenche aussi ce workflow.)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lire et vérifier la version
+        id: version
+        run: |
+          HEADER=$(grep -m1 -E '^\s*\*\s*Version:' bca-media-cleaner.php | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+          CONST=$(grep -m1 "define( 'BCAMC_VERSION'" bca-media-cleaner.php | sed -E "s/.*'BCAMC_VERSION', '([^']+)'.*/\1/")
+          echo "En-tête: $HEADER | Constante: $CONST"
+          if [ -z "$HEADER" ] || [ "$HEADER" != "$CONST" ]; then
+            echo "::error::La version de l'en-tête ($HEADER) et la constante BCAMC_VERSION ($CONST) ne correspondent pas."
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "${GITHUB_REF_NAME#v}" != "$HEADER" ]; then
+            echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à la version du plugin ($HEADER)."
+            exit 1
+          fi
+          echo "version=$HEADER" >> "$GITHUB_OUTPUT"
+
+      - name: Refuser une version déjà publiée
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::La version v${{ steps.version.outputs.version }} est déjà publiée. Passez d'abord à une nouvelle version dans bca-media-cleaner.php."
+            exit 1
+          fi
+
+      - name: Construire le zip
+        run: |
+          mkdir -p /tmp/build/bca-media-cleaner
+          rsync -a --exclude-from=.distignore ./ /tmp/build/bca-media-cleaner/
+          cd /tmp/build && zip -rq "$GITHUB_WORKSPACE/bca-media-cleaner.zip" bca-media-cleaner
+
+      - name: Publier la release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          files: bca-media-cleaner.zip
+          generate_release_notes: true

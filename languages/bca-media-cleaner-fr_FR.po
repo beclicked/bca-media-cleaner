@@ -1,0 +1,459 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: BCA Media Cleaner 0.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/beclicked/bca-media-cleaner/issues\n"
+"POT-Creation-Date: 2026-11-06T14:42:41+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Be Clicked Agency\n"
+"Language-Team: Be Clicked Agency\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: bca-media-cleaner\n"
+"X-Generator: WP-CLI 2.11.0\n"
+
+#. Plugin Name of the plugin
+#: bca-media-cleaner.php
+msgid "BCA Media Cleaner"
+msgstr "BCA Media Cleaner"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: bca-media-cleaner.php
+msgid "https://beclicked.agency"
+msgstr "https://beclicked.agency"
+
+#. Description of the plugin
+#: bca-media-cleaner.php
+msgid ""
+"Find the media and files your site no longer uses, and see how much disk "
+"space you can recover. The analysis is read-only."
+msgstr ""
+"Repérez les médias et fichiers que votre site n'utilise plus, et voyez "
+"combien d'espace disque vous pouvez récupérer. L'analyse est en lecture "
+"seule."
+
+#. Author of the plugin
+#: bca-media-cleaner.php
+msgid "Be Clicked Agency"
+msgstr "Be Clicked Agency"
+
+#: bca-media-cleaner.php:55
+msgid ""
+"BCA Media Cleaner does not support multisite networks yet. The plugin is "
+"inactive on this installation."
+msgstr ""
+"BCA Media Cleaner ne prend pas encore en charge les réseaux multisites. "
+"L'extension reste inactive sur cette installation."
+
+#: includes/class-admin.php:32 includes/class-admin.php:33
+#: includes/class-admin.php:110
+msgid "Media cleanup"
+msgstr "Nettoyage des médias"
+
+#: includes/class-admin.php:42
+msgid "Open"
+msgstr "Ouvrir"
+
+#: includes/class-admin.php:62
+msgid "Starting the analysis..."
+msgstr "Démarrage de l'analyse..."
+
+#: includes/class-admin.php:63
+msgid "Analysis complete. Loading the report..."
+msgstr "Analyse terminée. Chargement du rapport..."
+
+#: includes/class-admin.php:64
+msgid ""
+"The analysis was interrupted. Click \"Resume\" to continue where it stopped."
+msgstr ""
+"L'analyse a été interrompue. Cliquez sur « Reprendre » pour continuer là où "
+"elle s'est arrêtée."
+
+#: includes/class-admin.php:65
+msgid "Start a new analysis? The current results will be replaced."
+msgstr "Lancer une nouvelle analyse ? Les résultats actuels seront remplacés."
+
+#: includes/class-admin.php:66
+msgid "The analysis is running. If you leave, you can resume it later."
+msgstr ""
+"L'analyse est en cours. Si vous quittez la page, vous pourrez la reprendre "
+"plus tard."
+
+#: includes/class-admin.php:79
+msgid "You are not allowed to do this."
+msgstr "Vous n'avez pas l'autorisation de faire cela."
+
+#: includes/class-admin.php:97
+msgid "You are not allowed to access this page."
+msgstr "Vous n'avez pas l'autorisation d'accéder à cette page."
+
+#: includes/class-admin.php:112 includes/class-updater.php:168
+msgid ""
+"Find the media and files your site no longer uses, and see how much disk "
+"space you can recover."
+msgstr ""
+"Repérez les médias et fichiers que votre site n'utilise plus, et voyez "
+"combien d'espace disque vous pouvez récupérer."
+
+#: includes/class-admin.php:115
+msgid "Read-only analysis."
+msgstr "Analyse en lecture seule."
+
+#: includes/class-admin.php:116
+msgid "This version only analyzes and reports. No file is moved or deleted."
+msgstr ""
+"Cette version analyse et présente un rapport, rien de plus. Aucun fichier "
+"n'est déplacé ni supprimé."
+
+#. translators: 1: date, 2: duration
+#: includes/class-admin.php:148
+msgid "Last analysis: %1$s (duration: %2$s)."
+msgstr "Dernière analyse : %1$s (durée : %2$s)."
+
+#: includes/class-admin.php:155
+msgid "An analysis was started and has not finished yet. You can resume it."
+msgstr ""
+"Une analyse a été lancée et n'est pas terminée. Vous pouvez la reprendre."
+
+#: includes/class-admin.php:157
+msgid ""
+"The analysis reads your content, settings, style sheets and plugin data, "
+"then compares them with your media library and your uploads folder. It can "
+"take a few minutes on a large site. You can close the page and resume later."
+msgstr ""
+"L'analyse lit vos contenus, réglages, feuilles de style et données "
+"d'extensions, puis les compare à votre médiathèque et à votre dossier "
+"uploads. Elle peut prendre quelques minutes sur un gros site. Vous pouvez "
+"fermer la page et reprendre plus tard."
+
+#: includes/class-admin.php:163
+msgid "Resume the analysis"
+msgstr "Reprendre l'analyse"
+
+#: includes/class-admin.php:164
+msgid "Start over"
+msgstr "Recommencer"
+
+#: includes/class-admin.php:167
+msgid "Run a new analysis"
+msgstr "Lancer une nouvelle analyse"
+
+#: includes/class-admin.php:167
+msgid "Run the analysis"
+msgstr "Lancer l'analyse"
+
+#: includes/class-admin.php:187
+msgid "Space you could recover"
+msgstr "Espace récupérable"
+
+#. translators: 1: size of the uploads folder, 2: percentage
+#: includes/class-admin.php:194
+msgid "out of %1$s in the uploads folder (%2$s%%)"
+msgstr "sur %1$s dans le dossier uploads (%2$s %%)"
+
+#. translators: %s: number of media
+#: includes/class-admin.php:203
+msgid "%s media in the library"
+msgid_plural "%s media in the library"
+msgstr[0] "%s média dans la médiathèque"
+msgstr[1] "%s médias dans la médiathèque"
+
+#. translators: %s: number of items
+#: includes/class-admin.php:219
+msgid "%s item"
+msgid_plural "%s items"
+msgstr[0] "%s élément"
+msgstr[1] "%s éléments"
+
+#: includes/class-admin.php:225
+msgid "See the list"
+msgstr "Voir la liste"
+
+#: includes/class-admin.php:233
+msgid "The 20 heaviest items"
+msgstr "Les 20 éléments les plus lourds"
+
+#: includes/class-admin.php:240
+msgid "Where the space goes"
+msgstr "Où part l'espace"
+
+#: includes/class-admin.php:241
+msgid ""
+"Size of each folder inside the uploads folder. Folders other than the yearly"
+" ones belong to plugins (Elementor, forms, backups...): they are measured "
+"but never analyzed."
+msgstr ""
+"Poids de chaque dossier du dossier uploads. Les dossiers autres que les "
+"années appartiennent à des extensions (Elementor, formulaires, "
+"sauvegardes...) : ils sont mesurés mais jamais analysés."
+
+#: includes/class-admin.php:243
+msgid "Folder"
+msgstr "Dossier"
+
+#: includes/class-admin.php:243
+msgid "Size"
+msgstr "Poids"
+
+#: includes/class-admin.php:266
+msgid "Back to the report"
+msgstr "Retour au rapport"
+
+#. translators: 1: number of items, 2: total size
+#: includes/class-admin.php:283
+msgid "%1$s item, %2$s in total."
+msgid_plural "%1$s items, %2$s in total."
+msgstr[0] "%1$s élément, %2$s au total."
+msgstr[1] "%1$s éléments, %2$s au total."
+
+#: includes/class-admin.php:309
+msgid "Nothing to report in this category."
+msgstr "Rien à signaler dans cette catégorie."
+
+#: includes/class-admin.php:321
+msgid "Preview"
+msgstr "Aperçu"
+
+#: includes/class-admin.php:322
+msgid "File"
+msgstr "Fichier"
+
+#: includes/class-admin.php:324
+msgid "Category"
+msgstr "Catégorie"
+
+#: includes/class-admin.php:326
+msgid "Size on disk"
+msgstr "Poids sur le disque"
+
+#: includes/class-admin.php:327
+msgid "Added"
+msgstr "Ajouté le"
+
+#. translators: %s: name of the image size
+#: includes/class-admin.php:354
+msgid "Size \"%s\", no longer generated"
+msgstr "Taille « %s », plus générée"
+
+#. translators: %s: number of files
+#: includes/class-admin.php:362
+msgid "%s file in total (original, sizes and variants)"
+msgid_plural "%s files in total (original, sizes and variants)"
+msgstr[0] "%s fichier au total (original, tailles et variantes)"
+msgstr[1] "%s fichiers au total (original, tailles et variantes)"
+
+#: includes/class-admin.php:382
+msgid "What the analysis cannot see"
+msgstr "Ce que l'analyse ne peut pas voir"
+
+#: includes/class-admin.php:383
+msgid ""
+"A file listed here may still be used somewhere the analysis cannot read:"
+msgstr ""
+"Un fichier listé ici peut encore servir à un endroit que l'analyse ne peut "
+"pas lire :"
+
+#: includes/class-admin.php:385
+msgid "emails already sent, which link to a file on your site;"
+msgstr "les emails déjà envoyés, qui pointent vers un fichier de votre site ;"
+
+#: includes/class-admin.php:386
+msgid "social media posts and other websites that point to one of your files;"
+msgstr ""
+"les publications sur les réseaux sociaux et les autres sites qui pointent "
+"vers un de vos fichiers ;"
+
+#: includes/class-admin.php:387
+msgid "SureCart products, which are stored outside WordPress;"
+msgstr "les produits SureCart, stockés en dehors de WordPress ;"
+
+#: includes/class-admin.php:388
+msgid "addresses written directly in your theme files;"
+msgstr "les adresses écrites en dur dans les fichiers de votre thème ;"
+
+#: includes/class-admin.php:389
+msgid "media stored on an external service or CDN storage."
+msgstr "les médias stockés sur un service externe ou un stockage CDN."
+
+#: includes/class-admin.php:391
+msgid ""
+"This is why a future version will place files in quarantine for several "
+"weeks before any deletion: a forgotten use shows up as a missing image, and "
+"the file is restored in one click."
+msgstr ""
+"C'est pourquoi une prochaine version placera les fichiers en quarantaine "
+"pendant plusieurs semaines avant toute suppression : un usage oublié se "
+"remarque par une image manquante, et le fichier se restaure en un clic."
+
+#: includes/class-admin.php:400
+msgid "Settings"
+msgstr "Réglages"
+
+#: includes/class-admin.php:405
+msgid "Ignore media added in the last"
+msgstr "Ignorer les médias ajoutés depuis moins de"
+
+#: includes/class-admin.php:407
+msgid "days"
+msgstr "jours"
+
+#: includes/class-admin.php:408
+msgid "A file uploaded recently may simply not be inserted in a page yet."
+msgstr ""
+"Un fichier envoyé récemment n'est peut-être simplement pas encore inséré "
+"dans une page."
+
+#: includes/class-admin.php:412
+msgid "Documents"
+msgstr "Documents"
+
+#: includes/class-admin.php:414
+msgid "Also analyze documents (PDF, audio, office files...)"
+msgstr "Analyser aussi les documents (PDF, audio, bureautique...)"
+
+#: includes/class-admin.php:415
+msgid ""
+"Off by default: documents are often shared outside the site (emails, social "
+"media), where the analysis cannot see them."
+msgstr ""
+"Désactivé par défaut : les documents sont souvent partagés hors du site "
+"(emails, réseaux sociaux), là où l'analyse ne les voit pas."
+
+#: includes/class-admin.php:419
+msgid "Batch size"
+msgstr "Taille des lots"
+
+#: includes/class-admin.php:422
+msgid ""
+"Number of items read at a time. Lower it if the analysis stops on a modest "
+"server."
+msgstr ""
+"Nombre d'éléments lus à la fois. Baissez-le si l'analyse s'arrête sur un "
+"serveur modeste."
+
+#: includes/class-admin.php:426
+msgid "Changes apply to the next analysis."
+msgstr "Les changements s'appliquent à la prochaine analyse."
+
+#. translators: 1: duration in seconds, 2: peak memory
+#: includes/class-cli.php:65
+msgid "Analysis complete in %1$s s (peak memory: %2$s)."
+msgstr "Analyse terminée en %1$s s (mémoire max : %2$s)."
+
+#: includes/class-cli.php:93
+msgid "No complete analysis yet. Run: wp bca-media-cleaner scan"
+msgstr ""
+"Aucune analyse complète pour l'instant. Lancez : wp bca-media-cleaner scan"
+
+#. translators: 1: recoverable size, 2: uploads size, 3: number of media
+#: includes/class-cli.php:116
+msgid ""
+"Recoverable: %1$s out of %2$s in the uploads folder (%3$s media in the "
+"library)."
+msgstr ""
+"Récupérable : %1$s sur %2$s dans le dossier uploads (%3$s médias dans la "
+"médiathèque)."
+
+#: includes/class-cli.php:132
+msgid "Largest folders in uploads:"
+msgstr "Dossiers les plus lourds dans uploads :"
+
+#: includes/class-cli.php:174
+msgid "Unknown category. Use A, B or C."
+msgstr "Catégorie inconnue. Utilisez A, B ou C."
+
+#: includes/class-report.php:17
+msgid "Unused image sizes"
+msgstr "Tailles d'images inutilisées"
+
+#: includes/class-report.php:19
+msgid "Unused media"
+msgstr "Médias inutilisés"
+
+#: includes/class-report.php:21
+msgid "Orphan files"
+msgstr "Fichiers orphelins"
+
+#: includes/class-report.php:29
+msgid ""
+"Image sizes your theme and plugins no longer generate, and that no page "
+"cites. The original image and the sizes still in use are kept."
+msgstr ""
+"Tailles d'images que votre thème et vos extensions ne génèrent plus, et "
+"qu'aucune page ne cite. L'image d'origine et les tailles encore utilisées "
+"sont conservées."
+
+#: includes/class-report.php:31
+msgid ""
+"Media found nowhere on the site: no page, setting, style sheet or plugin "
+"refers to them."
+msgstr ""
+"Médias introuvables sur le site : aucune page, aucun réglage, aucune feuille"
+" de style ni aucune extension n'y fait référence."
+
+#: includes/class-report.php:33
+msgid ""
+"Files in the dated upload folders that belong to no media and are cited "
+"nowhere, often left over from deleted media or migrations."
+msgstr ""
+"Fichiers des dossiers datés d'uploads qui n'appartiennent à aucun média et "
+"ne sont cités nulle part, souvent des restes de médias supprimés ou de "
+"migrations."
+
+#. translators: %s: name of the part of the site being read
+#: includes/class-scanner.php:278
+msgid "Reading: %s"
+msgstr "Lecture : %s"
+
+#. translators: 1: media checked, 2: total media
+#: includes/class-scanner.php:284
+msgid "Checking media: %1$s of %2$s"
+msgstr "Vérification des médias : %1$s sur %2$s"
+
+#: includes/class-scanner.php:289
+msgid "Measuring the uploads folder"
+msgstr "Mesure du dossier uploads"
+
+#: includes/class-sources.php:50
+msgid "Content (all post types and statuses)"
+msgstr "Contenus (tous types et statuts)"
+
+#: includes/class-sources.php:55
+msgid "Content settings (Elementor, featured images, SEO, galleries)"
+msgstr "Réglages des contenus (Elementor, images à la une, SEO, galeries)"
+
+#: includes/class-sources.php:60
+msgid "Site settings (logo, icon, theme, widgets)"
+msgstr "Réglages du site (logo, icône, thème, widgets)"
+
+#: includes/class-sources.php:65
+msgid "Categories and tags"
+msgstr "Catégories et étiquettes"
+
+#: includes/class-sources.php:70
+msgid "User profiles"
+msgstr "Profils utilisateurs"
+
+#: includes/class-sources.php:75
+msgid "Comments"
+msgstr "Commentaires"
+
+#: includes/class-sources.php:80
+msgid "Plugin tables (FluentCRM, Fluent Forms, FluentBooking...)"
+msgstr "Tables des extensions (FluentCRM, Fluent Forms, FluentBooking...)"
+
+#: includes/class-sources.php:85
+msgid "Style sheets and code snippets"
+msgstr "Feuilles de style et snippets de code"
+
+#: includes/class-updater.php:154
+msgid "Improvements and fixes."
+msgstr "Améliorations et corrections."
+
+#: includes/class-updater.php:228
+msgid "The BCA Media Cleaner update could not be prepared."
+msgstr "La mise à jour de BCA Media Cleaner n'a pas pu être préparée."

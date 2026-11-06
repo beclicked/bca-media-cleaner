@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+.distignore
+README.md
+TESTS.md
+CLAUDE.md
+tests
+*.zip
+.DS_Store
+node_modules
