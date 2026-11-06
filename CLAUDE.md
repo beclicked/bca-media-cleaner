@@ -25,15 +25,16 @@
 |---|---|
 | `class-db.php` | Tables `bcamc_refs` (index des références : ID, chemin exact, radical, fichiers possédés) et `bcamc_items` (résultats) |
 | `class-extractor.php` | Extraction des IDs et chemins d'un texte, normalisation, radical |
-| `class-sources.php` | Sources lues par lots avec curseur. Filtre `bcamc_reference_sources` |
+| `class-sources.php` | Sources lues par lots avec curseur. Toutes les tables non WordPress (connues : souple ; autres : strict). Champs média ACF/JetEngine. Filtres `bcamc_reference_sources`, `bcamc_scan_tables`, `bcamc_skip_tables`, `bcamc_media_field_keys` |
 | `class-inventory.php` | Fichiers de chaque média, classement A et B, parcours des dossiers pour C |
 | `class-scanner.php` | Machine à états reprenable (option `bcamc_scan`) : index, inventaire, fichiers. Budget temps et garde mémoire à 70 % |
 | `class-report.php` | Synthèse et listes |
 | `class-admin.php` / `assets/admin.js` | Page Médias > Nettoyage des médias, passages AJAX de 6 s |
+| `class-export.php` | Export CSV par paquets (admin-post `bcamc_export`, nonce), séparateur selon la langue, formules neutralisées |
 | `class-cli.php` | `wp bca-media-cleaner scan|report|list` |
 | `class-updater.php` | Mises à jour via GitHub Releases (copie adaptée de BCA Media Folders) |
 
-Correspondance : B par ID ou radical ; A et C par chemin exact uniquement. Le radical retire extension, `-LxH`, `-scaled`, `-rotated`, `-e` + 13 chiffres, mais garde `-1`, `-2`.
+Correspondance : B par ID ou radical ; A et C par chemin exact uniquement. Mode strict (tables inconnues) : pas de motif générique `"id":N` ni `id=N`. Clés imbriquées : mots entiers seulement (`NESTED_HINTS`), pour éviter le bruit du type `..._export_files` dans le cron. Le radical retire extension, `-LxH`, `-scaled`, `-rotated`, `-e` + 13 chiffres, mais garde `-1`, `-2`.
 
 ## Tests
 

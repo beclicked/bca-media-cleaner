@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BCA Media Cleaner 0.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/beclicked/bca-media-cleaner/issues\n"
-"POT-Creation-Date: 2026-11-06T14:42:41+00:00\n"
+"POT-Creation-Date: 2026-11-06T16:23:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Be Clicked Agency\n"
 "Language-Team: Be Clicked Agency\n"
@@ -83,7 +83,7 @@ msgstr ""
 "L'analyse est en cours. Si vous quittez la page, vous pourrez la reprendre "
 "plus tard."
 
-#: includes/class-admin.php:79
+#: includes/class-admin.php:79 includes/class-export.php:50
 msgid "You are not allowed to do this."
 msgstr "Vous n'avez pas l'autorisation de faire cela."
 
@@ -173,15 +173,19 @@ msgstr[1] "%s éléments"
 msgid "See the list"
 msgstr "Voir la liste"
 
-#: includes/class-admin.php:233
+#: includes/class-admin.php:234
 msgid "The 20 heaviest items"
 msgstr "Les 20 éléments les plus lourds"
 
-#: includes/class-admin.php:240
+#: includes/class-admin.php:235
+msgid "Download everything (CSV)"
+msgstr "Tout télécharger (CSV)"
+
+#: includes/class-admin.php:243
 msgid "Where the space goes"
 msgstr "Où part l'espace"
 
-#: includes/class-admin.php:241
+#: includes/class-admin.php:244
 msgid ""
 "Size of each folder inside the uploads folder. Folders other than the yearly"
 " ones belong to plugins (Elementor, forms, backups...): they are measured "
@@ -191,95 +195,99 @@ msgstr ""
 "années appartiennent à des extensions (Elementor, formulaires, "
 "sauvegardes...) : ils sont mesurés mais jamais analysés."
 
-#: includes/class-admin.php:243
+#: includes/class-admin.php:246
 msgid "Folder"
 msgstr "Dossier"
 
-#: includes/class-admin.php:243
+#: includes/class-admin.php:246
 msgid "Size"
 msgstr "Poids"
 
-#: includes/class-admin.php:266
+#: includes/class-admin.php:269
 msgid "Back to the report"
 msgstr "Retour au rapport"
 
 #. translators: 1: number of items, 2: total size
-#: includes/class-admin.php:283
+#: includes/class-admin.php:287
 msgid "%1$s item, %2$s in total."
 msgid_plural "%1$s items, %2$s in total."
 msgstr[0] "%1$s élément, %2$s au total."
 msgstr[1] "%1$s éléments, %2$s au total."
 
-#: includes/class-admin.php:309
+#: includes/class-admin.php:294
+msgid "Download this list (CSV)"
+msgstr "Télécharger cette liste (CSV)"
+
+#: includes/class-admin.php:317
 msgid "Nothing to report in this category."
 msgstr "Rien à signaler dans cette catégorie."
 
-#: includes/class-admin.php:321
+#: includes/class-admin.php:329
 msgid "Preview"
 msgstr "Aperçu"
 
-#: includes/class-admin.php:322
+#: includes/class-admin.php:330
 msgid "File"
 msgstr "Fichier"
 
-#: includes/class-admin.php:324
+#: includes/class-admin.php:332 includes/class-export.php:86
 msgid "Category"
 msgstr "Catégorie"
 
-#: includes/class-admin.php:326
+#: includes/class-admin.php:334 includes/class-export.php:92
 msgid "Size on disk"
 msgstr "Poids sur le disque"
 
-#: includes/class-admin.php:327
+#: includes/class-admin.php:335 includes/class-export.php:94
 msgid "Added"
 msgstr "Ajouté le"
 
 #. translators: %s: name of the image size
-#: includes/class-admin.php:354
+#: includes/class-admin.php:362
 msgid "Size \"%s\", no longer generated"
 msgstr "Taille « %s », plus générée"
 
 #. translators: %s: number of files
-#: includes/class-admin.php:362
+#: includes/class-admin.php:370
 msgid "%s file in total (original, sizes and variants)"
 msgid_plural "%s files in total (original, sizes and variants)"
 msgstr[0] "%s fichier au total (original, tailles et variantes)"
 msgstr[1] "%s fichiers au total (original, tailles et variantes)"
 
-#: includes/class-admin.php:382
+#: includes/class-admin.php:390
 msgid "What the analysis cannot see"
 msgstr "Ce que l'analyse ne peut pas voir"
 
-#: includes/class-admin.php:383
+#: includes/class-admin.php:391
 msgid ""
 "A file listed here may still be used somewhere the analysis cannot read:"
 msgstr ""
 "Un fichier listé ici peut encore servir à un endroit que l'analyse ne peut "
 "pas lire :"
 
-#: includes/class-admin.php:385
+#: includes/class-admin.php:393
 msgid "emails already sent, which link to a file on your site;"
 msgstr "les emails déjà envoyés, qui pointent vers un fichier de votre site ;"
 
-#: includes/class-admin.php:386
+#: includes/class-admin.php:394
 msgid "social media posts and other websites that point to one of your files;"
 msgstr ""
 "les publications sur les réseaux sociaux et les autres sites qui pointent "
 "vers un de vos fichiers ;"
 
-#: includes/class-admin.php:387
+#: includes/class-admin.php:395
 msgid "SureCart products, which are stored outside WordPress;"
 msgstr "les produits SureCart, stockés en dehors de WordPress ;"
 
-#: includes/class-admin.php:388
+#: includes/class-admin.php:396
 msgid "addresses written directly in your theme files;"
 msgstr "les adresses écrites en dur dans les fichiers de votre thème ;"
 
-#: includes/class-admin.php:389
+#: includes/class-admin.php:397
 msgid "media stored on an external service or CDN storage."
 msgstr "les médias stockés sur un service externe ou un stockage CDN."
 
-#: includes/class-admin.php:391
+#: includes/class-admin.php:399
 msgid ""
 "This is why a future version will place files in quarantine for several "
 "weeks before any deletion: a forgotten use shows up as a missing image, and "
@@ -289,33 +297,33 @@ msgstr ""
 "pendant plusieurs semaines avant toute suppression : un usage oublié se "
 "remarque par une image manquante, et le fichier se restaure en un clic."
 
-#: includes/class-admin.php:400
+#: includes/class-admin.php:408
 msgid "Settings"
 msgstr "Réglages"
 
-#: includes/class-admin.php:405
+#: includes/class-admin.php:413
 msgid "Ignore media added in the last"
 msgstr "Ignorer les médias ajoutés depuis moins de"
 
-#: includes/class-admin.php:407
+#: includes/class-admin.php:415
 msgid "days"
 msgstr "jours"
 
-#: includes/class-admin.php:408
+#: includes/class-admin.php:416
 msgid "A file uploaded recently may simply not be inserted in a page yet."
 msgstr ""
 "Un fichier envoyé récemment n'est peut-être simplement pas encore inséré "
 "dans une page."
 
-#: includes/class-admin.php:412
+#: includes/class-admin.php:420
 msgid "Documents"
 msgstr "Documents"
 
-#: includes/class-admin.php:414
+#: includes/class-admin.php:422
 msgid "Also analyze documents (PDF, audio, office files...)"
 msgstr "Analyser aussi les documents (PDF, audio, bureautique...)"
 
-#: includes/class-admin.php:415
+#: includes/class-admin.php:423
 msgid ""
 "Off by default: documents are often shared outside the site (emails, social "
 "media), where the analysis cannot see them."
@@ -323,11 +331,11 @@ msgstr ""
 "Désactivé par défaut : les documents sont souvent partagés hors du site "
 "(emails, réseaux sociaux), là où l'analyse ne les voit pas."
 
-#: includes/class-admin.php:419
+#: includes/class-admin.php:427
 msgid "Batch size"
 msgstr "Taille des lots"
 
-#: includes/class-admin.php:422
+#: includes/class-admin.php:430
 msgid ""
 "Number of items read at a time. Lower it if the analysis stops on a modest "
 "server."
@@ -335,7 +343,7 @@ msgstr ""
 "Nombre d'éléments lus à la fois. Baissez-le si l'analyse s'arrête sur un "
 "serveur modeste."
 
-#: includes/class-admin.php:426
+#: includes/class-admin.php:434
 msgid "Changes apply to the next analysis."
 msgstr "Les changements s'appliquent à la prochaine analyse."
 
@@ -365,6 +373,38 @@ msgstr "Dossiers les plus lourds dans uploads :"
 #: includes/class-cli.php:174
 msgid "Unknown category. Use A, B or C."
 msgstr "Catégorie inconnue. Utilisez A, B ou C."
+
+#: includes/class-export.php:87
+msgid "Media ID"
+msgstr "ID du média"
+
+#: includes/class-export.php:88
+msgid "Title"
+msgstr "Titre"
+
+#: includes/class-export.php:89
+msgid "Image size"
+msgstr "Taille d'image"
+
+#: includes/class-export.php:90
+msgid "Path"
+msgstr "Chemin"
+
+#: includes/class-export.php:91
+msgid "Size on disk (bytes)"
+msgstr "Poids sur le disque (octets)"
+
+#: includes/class-export.php:93
+msgid "Files"
+msgstr "Fichiers"
+
+#: includes/class-export.php:95
+msgid "File address"
+msgstr "Adresse du fichier"
+
+#: includes/class-export.php:96
+msgid "Edit link"
+msgstr "Lien de modification"
 
 #: includes/class-report.php:17
 msgid "Unused image sizes"
@@ -405,48 +445,48 @@ msgstr ""
 "migrations."
 
 #. translators: %s: name of the part of the site being read
-#: includes/class-scanner.php:278
+#: includes/class-scanner.php:286
 msgid "Reading: %s"
 msgstr "Lecture : %s"
 
 #. translators: 1: media checked, 2: total media
-#: includes/class-scanner.php:284
+#: includes/class-scanner.php:292
 msgid "Checking media: %1$s of %2$s"
 msgstr "Vérification des médias : %1$s sur %2$s"
 
-#: includes/class-scanner.php:289
+#: includes/class-scanner.php:297
 msgid "Measuring the uploads folder"
 msgstr "Mesure du dossier uploads"
 
-#: includes/class-sources.php:50
+#: includes/class-sources.php:86
 msgid "Content (all post types and statuses)"
 msgstr "Contenus (tous types et statuts)"
 
-#: includes/class-sources.php:55
+#: includes/class-sources.php:91
 msgid "Content settings (Elementor, featured images, SEO, galleries)"
 msgstr "Réglages des contenus (Elementor, images à la une, SEO, galeries)"
 
-#: includes/class-sources.php:60
+#: includes/class-sources.php:96
 msgid "Site settings (logo, icon, theme, widgets)"
 msgstr "Réglages du site (logo, icône, thème, widgets)"
 
-#: includes/class-sources.php:65
+#: includes/class-sources.php:101
 msgid "Categories and tags"
 msgstr "Catégories et étiquettes"
 
-#: includes/class-sources.php:70
+#: includes/class-sources.php:106
 msgid "User profiles"
 msgstr "Profils utilisateurs"
 
-#: includes/class-sources.php:75
+#: includes/class-sources.php:111
 msgid "Comments"
 msgstr "Commentaires"
 
-#: includes/class-sources.php:80
-msgid "Plugin tables (FluentCRM, Fluent Forms, FluentBooking...)"
-msgstr "Tables des extensions (FluentCRM, Fluent Forms, FluentBooking...)"
+#: includes/class-sources.php:116
+msgid "Plugin tables (FluentCRM, Fluent Forms, JetEngine...)"
+msgstr "Tables des extensions (FluentCRM, Fluent Forms, JetEngine...)"
 
-#: includes/class-sources.php:85
+#: includes/class-sources.php:121
 msgid "Style sheets and code snippets"
 msgstr "Feuilles de style et snippets de code"
 

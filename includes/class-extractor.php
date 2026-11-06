@@ -23,8 +23,32 @@ final class BCAMC_Extractor {
 	/** Clés contenant toujours un ID de média ou d'objet. */
 	const ID_KEYS = array( '_thumbnail_id', '_product_image_gallery', '_menu_item_object_id', 'site_icon', 'custom_logo', 'thumbnail_id' );
 
+	/** Mots qui, dans une clé imbriquée, désignent un média. */
+	const NESTED_HINTS = array( 'image', 'images', 'img', 'logo', 'thumbnail', 'thumb', 'gallery', 'icon', 'background', 'bg', 'media', 'photo', 'photos', 'picture', 'avatar', 'cover', 'banner', 'poster', 'attachment', 'attachments', 'video', 'audio', 'pdf', 'document', 'file' );
+
+	/** Taille maximale d'une valeur sérialisée ou JSON parcourue clé par clé. */
+	const NESTED_MAX = 524288;
+
 	/** @var string|null Chemin URL du dossier d'uploads, par exemple « /wp-content/uploads/ ». */
 	private static ?string $uploads_path = null;
+
+	/** @var array<string, true> Noms de champs média déclarés par ACF, JetEngine... (minuscules). */
+	private static array $media_keys = array();
+
+	/**
+	 * Noms de champs qui contiennent des médias sur ce site (ACF, JetEngine...).
+	 *
+	 * @param string[] $keys
+	 */
+	public static function set_media_keys( array $keys ): void {
+		self::$media_keys = array();
+		foreach ( $keys as $key ) {
+			$key = strtolower( trim( (string) $key ) );
+			if ( '' !== $key ) {
+				self::$media_keys[ $key ] = true;
+			}
+		}
+	}
 
 	private static function uploads_path(): string {
 		if ( null === self::$uploads_path ) {
@@ -39,11 +63,14 @@ final class BCAMC_Extractor {
 	/**
 	 * Références trouvées dans un texte.
 	 *
-	 * @param string $text Texte brut (HTML, JSON, sérialisé, CSS...).
-	 * @param string $key  Nom de la meta ou de l'option (vide pour un contenu).
+	 * @param string $text   Texte brut (HTML, JSON, sérialisé, CSS...).
+	 * @param string $key    Nom de la meta, de l'option ou de la colonne (vide pour un contenu).
+	 * @param bool   $strict Table d'une extension inconnue : seuls les motifs d'IDs propres aux
+	 *                       médias sont retenus (un « "id":12 » quelconque y désigne souvent
+	 *                       un ticket, une commande ou un contact, pas un média).
 	 * @return array{ids: int[], paths: string[]}
 	 */
-	public static function extract( string $text, string $key = '' ): array {
+	public static function extract( string $text, string $key = '', bool $strict = false ): array {
 		$ids   = array();
 		$paths = array();
 
@@ -75,13 +102,19 @@ final class BCAMC_Extractor {
 		}
 
 		// --- IDs dans le contenu, les blocs et le JSON -------------------------
-		$id_patterns = array(
-			'/wp-image-(\d+)/',
-			'/data-(?:attachment-)?id=["\']?(\d+)/i',
-			'/attachment_id=(\d+)/i',
-			'/"(?:id|mediaId|mediaID|attachment_id|attachmentId|imageId|image_id|imageID|logo_id|poster_id)"\s*:\s*"?(\d+)/',
-			'/\b(?:id|attachment_id|image_id)=["\']?(\d+)/i',
-		);
+		$id_patterns = $strict
+			? array(
+				'/wp-image-(\d+)/',
+				'/attachment_id=(\d+)/i',
+				'/"(?:mediaId|mediaID|attachment_id|attachmentId|imageId|image_id|imageID|logo_id|poster_id)"\s*:\s*"?(\d+)/',
+			)
+			: array(
+				'/wp-image-(\d+)/',
+				'/data-(?:attachment-)?id=["\']?(\d+)/i',
+				'/attachment_id=(\d+)/i',
+				'/"(?:id|mediaId|mediaID|attachment_id|attachmentId|imageId|image_id|imageID|logo_id|poster_id)"\s*:\s*"?(\d+)/',
+				'/\b(?:id|attachment_id|image_id)=["\']?(\d+)/i',
+			);
 		foreach ( $id_patterns as $pattern ) {
 			if ( preg_match_all( $pattern, $plain, $m ) ) {
 				foreach ( $m[1] as $id ) {
@@ -91,20 +124,25 @@ final class BCAMC_Extractor {
 		}
 
 		// Galeries : [gallery ids="1,2,3"], "ids":[1,2,3], include="1,2".
-		if ( preg_match_all( '/(?:\bids|\binclude)\s*=\s*["\']?([\d,\s]+)/i', $plain, $m ) ) {
+		$gallery = $strict ? '/\[gallery[^\]]*\bids\s*=\s*["\']?([\d,\s]+)/i' : '/(?:\bids|\binclude)\s*=\s*["\']?([\d,\s]+)/i';
+		if ( preg_match_all( $gallery, $plain, $m ) ) {
 			foreach ( $m[1] as $list ) {
 				$ids = array_merge( $ids, self::ints_from_list( $list ) );
 			}
 		}
-		if ( preg_match_all( '/"ids"\s*:\s*\[([\d,\s"]+)\]/', $plain, $m ) ) {
+		if ( ! $strict && preg_match_all( '/"ids"\s*:\s*\[([\d,\s"]+)\]/', $plain, $m ) ) {
 			foreach ( $m[1] as $list ) {
 				$ids = array_merge( $ids, self::ints_from_list( str_replace( '"', '', $list ) ) );
 			}
 		}
 
-		// --- Clés de meta ou d'options qui désignent des médias -----------------
+		// --- Clés de meta, d'options ou de colonnes qui désignent des médias ----
 		if ( '' !== $key && self::key_holds_ids( $key ) ) {
 			$ids = array_merge( $ids, self::all_ints( $text ) );
+		} elseif ( '' !== $key && '_elementor_data' !== $key && strlen( $text ) <= self::NESTED_MAX ) {
+			// Valeur structurée (réglages d'un thème, page d'options JetEngine ou ACF...) :
+			// les entiers rangés sous une clé de média comptent comme des IDs.
+			$ids = array_merge( $ids, self::nested_ints( $text ) );
 		}
 
 		return array(
@@ -118,6 +156,9 @@ final class BCAMC_Extractor {
 		if ( in_array( $key, self::ID_KEYS, true ) ) {
 			return true;
 		}
+		if ( self::$media_keys && self::is_media_key( $key ) ) {
+			return true;
+		}
 		if ( 0 === strpos( $key, 'theme_mods_' ) || 0 === strpos( $key, 'widget_' ) ) {
 			return true;
 		}
@@ -127,6 +168,112 @@ final class BCAMC_Extractor {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Clé déclarée comme champ média, telle quelle ou préfixée :
+	 * « equipe_0_portrait » (répéteur ACF), « options_visuel » (page d'options ACF).
+	 */
+	private static function is_media_key( string $key ): bool {
+		if ( isset( self::$media_keys[ $key ] ) ) {
+			return true;
+		}
+		$pos = strrpos( $key, '_' );
+		while ( false !== $pos && $pos > 0 ) {
+			if ( isset( self::$media_keys[ substr( $key, $pos + 1 ) ] ) ) {
+				return true;
+			}
+			$pos = strrpos( substr( $key, 0, $pos ), '_' );
+		}
+		return false;
+	}
+
+	/**
+	 * Entiers rangés sous une clé de média dans une valeur sérialisée ou JSON.
+	 *
+	 * @return int[]
+	 */
+	public static function nested_ints( string $value ): array {
+		$data = self::decode( $value );
+		if ( ! is_array( $data ) ) {
+			return array();
+		}
+		$ints = array();
+		self::walk_nested( $data, $ints, 0 );
+		return $ints;
+	}
+
+	/**
+	 * Clé imbriquée qui désigne un média. Plus stricte que key_holds_ids() :
+	 * on compare des mots entiers (« background_image », « logoId »), pour ne pas
+	 * lire « wp_privacy_delete_old_export_files » comme un champ « file ».
+	 */
+	public static function nested_key_holds_ids( string $key ): bool {
+		$lower = strtolower( $key );
+		if ( in_array( $lower, self::ID_KEYS, true ) || ( self::$media_keys && self::is_media_key( $lower ) ) ) {
+			return true;
+		}
+		$words = preg_split( '/[^a-z0-9]+/', strtolower( (string) preg_replace( '/([a-z])([A-Z])/', '$1_$2', $key ) ) );
+		return (bool) array_intersect( (array) $words, self::NESTED_HINTS );
+	}
+
+	private static function walk_nested( array $data, array &$ints, int $depth ): void {
+		if ( $depth > 12 ) {
+			return;
+		}
+		foreach ( $data as $k => $v ) {
+			if ( is_string( $k ) && self::nested_key_holds_ids( $k ) ) {
+				if ( is_array( $v ) ) {
+					array_walk_recursive(
+						$v,
+						static function ( $item ) use ( &$ints ) {
+							foreach ( self::scalar_ints( $item ) as $int ) {
+								$ints[] = $int;
+							}
+						}
+					);
+				} else {
+					foreach ( self::scalar_ints( $v ) as $int ) {
+						$ints[] = $int;
+					}
+				}
+			} elseif ( is_array( $v ) ) {
+				self::walk_nested( $v, $ints, $depth + 1 );
+			}
+		}
+	}
+
+	/**
+	 * @return int[]
+	 */
+	private static function scalar_ints( $item ): array {
+		if ( is_int( $item ) ) {
+			return array( $item );
+		}
+		if ( is_string( $item ) && '' !== $item && ctype_digit( $item ) && strlen( $item ) < 12 ) {
+			return array( (int) $item );
+		}
+		if ( is_string( $item ) && preg_match( '/^[\d,\s]+$/', $item ) ) {
+			return self::ints_from_list( $item );
+		}
+		return array();
+	}
+
+	/**
+	 * Valeur sérialisée ou JSON décodée, sans jamais instancier d'objet.
+	 */
+	private static function decode( string $value ) {
+		$value = trim( $value );
+		if ( '' === $value ) {
+			return null;
+		}
+		if ( is_serialized( $value ) ) {
+			return @unserialize( $value, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors, WordPress.PHP.DiscouragedPHPFunctions
+		}
+		if ( '{' === $value[0] || '[' === $value[0] ) {
+			return json_decode( $value, true );
+		}
+		return null;
 	}
 
 	/**

@@ -124,7 +124,12 @@ foreach ( array( '2024', 'elementor' ) as $dir ) {
 		rmdir( $base . '/' . $dir );
 	}
 }
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}fc_campaigns" );
+foreach ( array( 'fc_campaigns', 'fp_videos', 'fs_tickets', 'team_members', 'custom_kv', 'jet_post_types', 'jet_cct_partenaires', 'independent_analytics_views' ) as $t_table ) {
+	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}{$t_table}" );
+}
+delete_option( 'jet_engine_meta_boxes' );
+delete_option( 'reglages-site' );
+delete_option( 't_schedule_store' );
 delete_option( 'site_icon' );
 delete_option( 'theme_t_custom_option' );
 remove_theme_mod( 'custom_logo' );
@@ -286,6 +291,81 @@ $snip_att = bcamc_t_attachment( '2024/01/snippet-bg.jpg' );
 wp_mkdir_p( WP_CONTENT_DIR . '/fluent-snippet-storage' );
 file_put_contents( WP_CONTENT_DIR . '/fluent-snippet-storage/1-custom.php', "<?php\n// <style>.hero{background:url('" . $u . "2024/01/snippet-bg.jpg')}</style>" );
 
+
+// S29 Table d'une extension inconnue (lecteur vidéo) : adresse du fichier dans un réglage JSON.
+$fp_video = bcamc_t_attachment( '2024/01/fp-video.mp4', array( 'mime' => 'video/mp4', 'sizes' => array() ) );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}fp_videos (id bigint(20) unsigned NOT NULL AUTO_INCREMENT, title varchar(191), settings longtext, PRIMARY KEY (id))" );
+$wpdb->insert( "{$wpdb->prefix}fp_videos", array( 'title' => 'Demo', 'settings' => wp_json_encode( array( 'src' => $u . '2024/01/fp-video.mp4' ) ) ) );
+
+// S30 Table inconnue où un « "id":N » désigne autre chose qu'un média (ticket de support).
+$strict_att = bcamc_t_attachment( '2024/01/strict-orphan.jpg' );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}fs_tickets (id bigint(20) unsigned NOT NULL AUTO_INCREMENT, data longtext, PRIMARY KEY (id))" );
+$wpdb->insert( "{$wpdb->prefix}fs_tickets", array( 'data' => '{"id":' . $strict_att . ',"title":"Help"}' ) );
+
+// S31 Table inconnue avec une colonne numérique nommée comme un média.
+$team_att = bcamc_t_attachment( '2024/01/team-photo.jpg' );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}team_members (id bigint(20) unsigned NOT NULL AUTO_INCREMENT, name varchar(191), photo_id bigint(20), PRIMARY KEY (id))" );
+$wpdb->insert( "{$wpdb->prefix}team_members", array( 'name' => 'Eric', 'photo_id' => $team_att ) );
+
+// S32 Table sans clé numérique (clé texte).
+$kv_att = bcamc_t_attachment( '2024/01/kv-image.jpg' );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}custom_kv (k varchar(64) NOT NULL, v longtext, PRIMARY KEY (k))" );
+$wpdb->insert( "{$wpdb->prefix}custom_kv", array( 'k' => 'hero', 'v' => 'url(' . $u . '2024/01/kv-image.jpg)' ) );
+
+// S33 Champs ACF de type image au nom neutre, simple et dans un répéteur.
+$acf_att  = bcamc_t_attachment( '2024/01/acf-visuel.jpg' );
+$acf_att2 = bcamc_t_attachment( '2024/01/acf-portrait.jpg' );
+foreach ( array( 'visuel' => 'image', 'portrait' => 'image', 'intro' => 'text' ) as $f_name => $f_type ) {
+	$wpdb->insert( $wpdb->posts, array( 'post_type' => 'acf-field', 'post_status' => 'publish', 'post_excerpt' => $f_name, 'post_name' => 'field_' . $f_name, 'post_content' => serialize( array( 'type' => $f_type, 'return_format' => 'id' ) ), 'post_title' => $f_name, 'post_date' => '2024-01-01 00:00:00', 'post_date_gmt' => '2024-01-01 00:00:00', 'post_modified' => '2024-01-01 00:00:00', 'post_modified_gmt' => '2024-01-01 00:00:00', 'to_ping' => '', 'pinged' => '', 'post_content_filtered' => '' ) );
+}
+$acf_page = bcamc_t_post( 'ACF page' );
+update_post_meta( $acf_page, 'visuel', (string) $acf_att );
+update_post_meta( $acf_page, 'equipe_0_portrait', (string) $acf_att2 );
+$acf_unused = bcamc_t_attachment( '2024/01/acf-intro-number.jpg' );
+update_post_meta( $acf_page, 'intro', (string) $acf_unused );
+
+// S34 Meta box JetEngine : champ média et galerie aux noms neutres.
+$jet_att  = bcamc_t_attachment( '2024/01/jet-plan.jpg' );
+$jet_g1   = bcamc_t_attachment( '2024/01/jet-gal-1.jpg' );
+$jet_g2   = bcamc_t_attachment( '2024/01/jet-gal-2.jpg' );
+update_option(
+	'jet_engine_meta_boxes',
+	array(
+		'meta-1' => array(
+			'args'        => array( 'name' => 'Infos' ),
+			'meta_fields' => array(
+				array( 'name' => 'plan_acces', 'type' => 'media', 'value_format' => 'id' ),
+				array( 'name' => 'galerie_jet', 'type' => 'gallery', 'value_format' => 'id' ),
+			),
+		),
+	)
+);
+update_post_meta( $acf_page, 'plan_acces', (string) $jet_att );
+update_post_meta( $acf_page, 'galerie_jet', $jet_g1 . ',' . $jet_g2 );
+
+// S35 Contenu personnalisé JetEngine (table dédiée) et S36 page d'options JetEngine.
+$cct_att = bcamc_t_attachment( '2024/01/cct-visuel.jpg' );
+$opt_jet = bcamc_t_attachment( '2024/01/jet-option.jpg' );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}jet_post_types (id bigint(20) unsigned NOT NULL AUTO_INCREMENT, slug varchar(191), status varchar(40), meta_fields longtext, PRIMARY KEY (id))" );
+$wpdb->insert( "{$wpdb->prefix}jet_post_types", array( 'slug' => 'partenaires', 'status' => 'content-type', 'meta_fields' => serialize( array( array( 'name' => 'visuel_cct', 'type' => 'media' ) ) ) ) );
+$wpdb->insert( "{$wpdb->prefix}jet_post_types", array( 'slug' => 'reglages-site', 'status' => 'page', 'meta_fields' => serialize( array( array( 'name' => 'fond_entete', 'type' => 'media' ) ) ) ) );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}jet_cct_partenaires (_ID bigint(20) unsigned NOT NULL AUTO_INCREMENT, nom text, visuel_cct text, PRIMARY KEY (_ID))" );
+$wpdb->insert( "{$wpdb->prefix}jet_cct_partenaires", array( 'nom' => 'Partenaire', 'visuel_cct' => (string) $cct_att ) );
+update_option( 'reglages-site', array( 'titre' => 'Site', 'fond_entete' => (string) $opt_jet ), false );
+
+// S37 Table de statistiques ignorée : un chemin n'y vaut pas utilisation.
+$log_att = bcamc_t_attachment( '2024/01/log-only.jpg' );
+$wpdb->query( "CREATE TABLE {$wpdb->prefix}independent_analytics_views (id bigint(20) unsigned NOT NULL AUTO_INCREMENT, url text, PRIMARY KEY (id))" );
+$wpdb->insert( "{$wpdb->prefix}independent_analytics_views", array( 'url' => $u . '2024/01/log-only.jpg' ) );
+
+// S39 Nombre rangé sous une clé qui contient « files » sans désigner un média (tâches planifiées).
+$cron_att = bcamc_t_attachment( '2024/01/cron-noise.jpg' );
+update_option( 't_schedule_store', array( 'wp_privacy_delete_old_export_files' => array( 'interval' => $cron_att ) ), false );
+
+// S38 Réglages de page Elementor sérialisés (image de fond par ID).
+$bg_att = bcamc_t_attachment( '2024/01/page-bg.jpg' );
+update_post_meta( $acf_page, '_elementor_page_settings', array( 'background_image' => array( 'id' => $bg_att, 'url' => '' ) ) );
+
 /* ===========================================================================
  * Empreinte avant scan (contrôle lecture seule)
  * ======================================================================== */
@@ -347,6 +427,17 @@ $used = array(
 	'S27 Adresse CDN sans wp-content/uploads'   => $cdn,
 	'S28 Snippet FluentSnippets'                => $snip_att,
 	'S13 Média orphelin récent (protégé par l\'âge)' => $recent,
+	'S29 Table inconnue : adresse dans un JSON'  => $fp_video,
+	'S31 Table inconnue : colonne photo_id'      => $team_att,
+	'S32 Table sans clé numérique'              => $kv_att,
+	'S33 Champ ACF image « visuel »'            => $acf_att,
+	'S33 Champ ACF dans un répéteur'            => $acf_att2,
+	'S34 Champ média JetEngine'                 => $jet_att,
+	'S34 Galerie JetEngine (1)'                 => $jet_g1,
+	'S34 Galerie JetEngine (2)'                 => $jet_g2,
+	'S35 Contenu personnalisé JetEngine'        => $cct_att,
+	'S36 Page d\'options JetEngine'             => $opt_jet,
+	'S38 Réglages de page Elementor sérialisés' => $bg_att,
 );
 foreach ( $used as $label => $id ) {
 	bcamc_t_ok( null === bcamc_t_is_b( $id ), $label . ' : conservé' );
@@ -359,6 +450,10 @@ $unused = array(
 	'S12 Image citée seulement dans une révision'   => $rev,
 	'S14 Image dont seules ses propres metas parlent' => $self,
 	'S22 Doublon photo-1.jpg non utilisé'           => $photo1,
+	'S30 « "id":N » d\'un ticket dans une table inconnue' => $strict_att,
+	'S33 Nombre dans un champ ACF texte'            => $acf_unused,
+	'S37 Chemin seulement dans les statistiques'    => $log_att,
+	'S39 Nombre sous une clé « ..._files » (cron)'   => $cron_att,
 );
 foreach ( $unused as $label => $id ) {
 	bcamc_t_ok( null !== bcamc_t_is_b( $id ), $label . ' : détecté inutilisé' );
@@ -392,6 +487,25 @@ bcamc_t_ok( 1 === count( $c_paths ), 'S11 Exactement 1 fichier orphelin (' . imp
 $summary = BCAMC_Report::summary();
 bcamc_t_ok( $summary['uploads_bytes'] > 0 && isset( $summary['folders']['2024'], $summary['folders']['elementor'] ), 'Rapport : poids par dossier (2024, elementor)' );
 bcamc_t_ok( $summary['recoverable'] === array_sum( array_column( $summary['categories'], 'bytes' ) ), 'Rapport : total récupérable = somme des catégories' );
+
+
+// Champs média découverts.
+$keys = BCAMC_Sources::media_field_keys();
+bcamc_t_ok( ! array_diff( array( 'visuel', 'portrait', 'plan_acces', 'galerie_jet', 'visuel_cct', 'fond_entete' ), $keys ) && ! in_array( 'intro', $keys, true ), 'Champs média ACF et JetEngine découverts (' . implode( ', ', $keys ) . ')' );
+
+// Export CSV.
+$csv = fopen( 'php://memory', 'w+' );
+$rows_written = BCAMC_Export::write( $csv, '', ';' );
+rewind( $csv );
+$csv_text = stream_get_contents( $csv );
+fclose( $csv );
+$csv_lines = array_values( array_filter( explode( "\n", $csv_text ) ) );
+$csv_total = array_sum( array_column( BCAMC_Report::summary()['categories'], 'count' ) );
+bcamc_t_ok( str_starts_with( $csv_text, "\xEF\xBB\xBF" ) && $rows_written === $csv_total && count( $csv_lines ) === $csv_total + 1, 'Export CSV : en-tête + ' . $csv_total . ' lignes, marque UTF-8' );
+bcamc_t_ok( false !== strpos( $csv_text, '2024/01/truly-orphan.jpg' ) && 11 === count( str_getcsv( $csv_lines[1], ';', '"', '' ) ), 'Export CSV : chemins présents, 11 colonnes séparées par « ; »' );
+$csv_b = fopen( 'php://memory', 'w+' );
+bcamc_t_ok( BCAMC_Export::write( $csv_b, 'B' ) === BCAMC_Report::count( 'B' ), 'Export CSV d\'une seule catégorie' );
+fclose( $csv_b );
 
 // Documents exclus par défaut.
 BCAMC_Scanner::run( array( 'include_documents' => false ) );

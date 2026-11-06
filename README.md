@@ -10,7 +10,7 @@ Rien n'est supprimé sans passer par : **analyse en lecture seule, quarantaine r
 
 | Phase | Contenu | État |
 |---|---|---|
-| 1 | Index des références et rapport, **lecture seule** | Livrée (0.1.0), en validation sur sites réels |
+| 1 | Index des références et rapport, **lecture seule** | 0.1.0 livrée, 0.2.0 après le premier test réel (toutes les tables, champs ACF et JetEngine, export CSV) |
 | 2 | Quarantaine et restauration | À venir |
 | 3 | Suppression définitive après N jours | À venir |
 
@@ -30,7 +30,12 @@ La version actuelle **ne déplace et ne supprime aucun fichier**.
 - Metas de contenus (Elementor, image mise en avant, galeries WooCommerce, SEOPress, ACF et extensions inconnues : toute valeur contenant un chemin d'uploads).
 - Options (logo, icône, theme mods, widgets, kit Elementor, SEOPress), autoloadées ou non, transients exclus.
 - Metas de termes, metas utilisateurs, commentaires.
-- Tables d'extensions détectées : FluentCRM, Fluent Forms, FluentBooking, Presto Player, quiz LearnDash.
+- **Toutes les tables des extensions** (JetEngine, FluentPlayer, Fluent Support, SureDash et toute extension future) :
+  - tables connues (FluentCRM, Fluent Forms, FluentBooking, Presto Player, quiz LearnDash) lues comme un contenu ;
+  - autres tables en mode strict : chemins de fichiers partout, IDs seulement dans les colonnes nommées comme un média (un `"id":12` quelconque y désigne souvent un ticket ou une commande) ;
+  - journaux, statistiques et files d'attente ignorés (Independent Analytics, Security Ninja, Action Scheduler...), liste filtrable avec `bcamc_skip_tables`.
+- **Champs média déclarés par ACF et JetEngine** (image, fichier, galerie, média), y compris répéteurs, pages d'options et contenus personnalisés JetEngine : un champ nommé `visuel` ou `plan_acces` est reconnu comme un média. Liste filtrable avec `bcamc_media_field_keys`.
+- Valeurs sérialisées ou JSON : les entiers rangés sous une clé de média (`background_image`, `logoId`...) comptent comme des IDs.
 - Fichiers CSS hors dossiers datés (dont `uploads/elementor/css`) et snippets FluentSnippets.
 - Sources supplémentaires via le filtre `bcamc_reference_sources`.
 
@@ -42,7 +47,7 @@ Emails déjà envoyés, publications sur les réseaux sociaux, sites tiers qui p
 
 ## Utilisation
 
-**Interface** : Médias > Nettoyage des médias > Lancer l'analyse. L'analyse avance par passages de 6 secondes ; on peut fermer l'onglet et reprendre plus tard.
+**Interface** : Médias > Nettoyage des médias > Lancer l'analyse. L'analyse avance par passages de 6 secondes ; on peut fermer l'onglet et reprendre plus tard. Chaque liste se télécharge en CSV (bouton « Télécharger cette liste »), ou tout d'un coup depuis le rapport. Le séparateur suit la langue du site (point-virgule en français, pour Excel).
 
 **WP-CLI** (recommandé sur les gros sites) :
 
@@ -89,7 +94,7 @@ Le workflow vérifie la cohérence des versions, refuse de republier une version
 Sur un WordPress de test uniquement (les scripts effacent des contenus) :
 
 ```bash
-BCAMC_TESTS=1 wp eval-file wp-content/plugins/bca-media-cleaner/tests/run.php    # 60 contrôles
+BCAMC_TESTS=1 wp eval-file wp-content/plugins/bca-media-cleaner/tests/run.php    # 79 contrôles
 BCAMC_TESTS=1 BCAMC_PERF_MEDIA=20000 wp eval-file wp-content/plugins/bca-media-cleaner/tests/perf.php
 ```
 

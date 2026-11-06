@@ -3,7 +3,7 @@
  * Plugin Name:       BCA Media Cleaner
  * Plugin URI:        https://beclicked.agency
  * Description:       Find the media and files your site no longer uses, and see how much disk space you can recover. The analysis is read-only.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.4
  * Requires PHP:      8.1
  * Author:            Be Clicked Agency
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BCAMC_VERSION', '0.1.0' );
+define( 'BCAMC_VERSION', '0.2.0' );
 define( 'BCAMC_FILE', __FILE__ );
 define( 'BCAMC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BCAMC_URL', plugin_dir_url( __FILE__ ) );
@@ -65,11 +65,13 @@ require_once BCAMC_DIR . 'includes/class-sources.php';
 require_once BCAMC_DIR . 'includes/class-inventory.php';
 require_once BCAMC_DIR . 'includes/class-scanner.php';
 require_once BCAMC_DIR . 'includes/class-report.php';
+require_once BCAMC_DIR . 'includes/class-export.php';
 require_once BCAMC_DIR . 'includes/class-admin.php';
 
 add_action( 'plugins_loaded', array( 'BCAMC_DB', 'maybe_upgrade' ) );
 BCAMC_Settings::init();
 BCAMC_Admin::init();
+BCAMC_Export::init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once BCAMC_DIR . 'includes/class-cli.php';

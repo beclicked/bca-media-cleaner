@@ -25,7 +25,43 @@ final class BCAMC_Sources {
 	/** Metas techniques sans intérêt (et parfois volumineuses). */
 	const SKIP_META = array( '_edit_lock', '_edit_last', '_wp_old_slug', '_wp_old_date', '_encloseme', '_pingme', 'session_tokens' );
 
-	/** Tables d'extensions connues dont les colonnes texte peuvent contenir des chemins de fichiers. */
+	/** Tables de WordPress, lues par les sources dédiées. */
+	const CORE_TABLES = array( 'posts', 'postmeta', 'options', 'terms', 'termmeta', 'term_taxonomy', 'term_relationships', 'users', 'usermeta', 'comments', 'commentmeta', 'links' );
+
+	/**
+	 * Tables de journaux, de statistiques et de files d'attente : volumineuses et sans
+	 * utilisation réelle de médias. Filtrable avec « bcamc_skip_tables ».
+	 */
+	const SKIP_TABLES = array(
+		'independent_analytics_*',
+		'wf_sn_*',
+		'wsal_*',
+		'simple_history*',
+		'actionscheduler_logs',
+		'actionscheduler_claims',
+		'wpmailsmtp_debug_events',
+		'redirection_404',
+		'redirection_logs',
+		'e_events',
+		'woocommerce_sessions',
+		'wc_sessions',
+		'wfblockediplog',
+		'wfhits',
+		'wflogins',
+		'wfls_*',
+		'itsec_logs',
+		'itsec_temp',
+		'yoast_seo_links',
+		'yoast_indexable*',
+		'seopress_seo_issues',
+		'seopress_significant_keywords',
+		'seopress_content_analysis',
+	);
+
+	/** Types de champs ACF et JetEngine qui stockent des médias. */
+	const MEDIA_FIELD_TYPES = array( 'image', 'file', 'gallery', 'media', 'video', 'audio', 'oembed_media', 'image_crop', 'image_aspect_ratio_crop', 'focal_point_image' );
+
+	/** Tables d'extensions connues : lues comme un contenu (IDs et chemins). */
 	const KNOWN_TABLES = array(
 		'fc_campaigns',
 		'fc_funnels',
@@ -77,7 +113,7 @@ final class BCAMC_Sources {
 				'batch' => array( __CLASS__, 'batch_comments' ),
 			),
 			'tables'   => array(
-				'label' => __( 'Plugin tables (FluentCRM, Fluent Forms, FluentBooking...)', 'bca-media-cleaner' ),
+				'label' => __( 'Plugin tables (FluentCRM, Fluent Forms, JetEngine...)', 'bca-media-cleaner' ),
 				'count' => array( __CLASS__, 'count_tables' ),
 				'batch' => array( __CLASS__, 'batch_tables' ),
 			),
@@ -325,48 +361,100 @@ final class BCAMC_Sources {
 	}
 
 	/* -------------------------------------------------------------------------
-	 * Tables d'extensions connues
+	 * Tables des extensions
 	 * ---------------------------------------------------------------------- */
 
+	/** @var array|null Cache des tables pour la requête en cours. */
+	private static ?array $tables_cache = null;
+
 	/**
-	 * Tables présentes, avec leur clé primaire numérique et leurs colonnes texte.
+	 * Toutes les tables du site autres que celles de WordPress, avec leur clé et leurs colonnes texte.
 	 *
-	 * @return array<int, array{table: string, pk: string, cols: string[]}>
+	 * Les tables connues (KNOWN_TABLES) sont lues comme un contenu. Les autres sont lues
+	 * en mode strict : chemins de fichiers partout, IDs seulement sous des colonnes de média.
+	 *
+	 * @return array<int, array{table: string, pk: string, cols: string[], strict: bool}>
 	 */
 	public static function plugin_tables(): array {
 		global $wpdb;
 
-		$suffixes = (array) apply_filters( 'bcamc_scan_tables', self::KNOWN_TABLES );
-		$tables   = array();
+		if ( null !== self::$tables_cache ) {
+			return self::$tables_cache;
+		}
 
-		foreach ( $suffixes as $suffix ) {
-			$table = $wpdb->prefix . preg_replace( '/[^a-z0-9_]/i', '', (string) $suffix );
-			if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) ) {
+		$known = array();
+		foreach ( (array) apply_filters( 'bcamc_scan_tables', self::KNOWN_TABLES ) as $suffix ) {
+			$known[ $wpdb->prefix . preg_replace( '/[^a-z0-9_]/i', '', (string) $suffix ) ] = true;
+		}
+		$core = array();
+		foreach ( self::CORE_TABLES as $suffix ) {
+			$core[ $wpdb->prefix . $suffix ] = true;
+		}
+		$skip = (array) apply_filters( 'bcamc_skip_tables', self::SKIP_TABLES );
+
+		$names = (array) $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix ) . '%' ) );
+		sort( $names );
+
+		$tables = array();
+		foreach ( $names as $table ) {
+			$table = (string) $table;
+			if ( isset( $core[ $table ] ) || ! preg_match( '/^[A-Za-z0-9_$]+$/', $table ) ) {
+				continue;
+			}
+			$suffix = substr( $table, strlen( $wpdb->prefix ) );
+			if ( str_starts_with( $suffix, 'bcamc_' ) || self::matches_any( $suffix, $skip ) ) {
 				continue;
 			}
 
-			$pk   = '';
-			$cols = array();
+			$strict = ! isset( $known[ $table ] );
+			$pk     = '';
+			$cols   = array();
 			foreach ( (array) $wpdb->get_results( "SHOW COLUMNS FROM `{$table}`", ARRAY_A ) as $col ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$type = strtolower( (string) ( $col['Type'] ?? '' ) );
 				$name = (string) ( $col['Field'] ?? '' );
+				if ( ! preg_match( '/^[A-Za-z0-9_$]+$/', $name ) ) {
+					continue;
+				}
 				if ( '' === $pk && 'PRI' === ( $col['Key'] ?? '' ) && preg_match( '/int/', $type ) ) {
 					$pk = $name;
-				} elseif ( preg_match( '/text|char|json|blob/', $type ) ) {
+				} elseif ( preg_match( $strict ? '/text|char|json/' : '/text|char|json|blob/', $type ) ) {
+					$cols[] = $name;
+				} elseif ( $strict && preg_match( '/int/', $type ) && BCAMC_Extractor::key_holds_ids( $name ) ) {
+					// Colonne numérique nommée comme un média (« photo_id », champ média JetEngine...).
 					$cols[] = $name;
 				}
 			}
 
-			if ( '' !== $pk && $cols ) {
+			if ( $cols ) {
 				$tables[] = array(
-					'table' => $table,
-					'pk'    => $pk,
-					'cols'  => $cols,
+					'table'  => $table,
+					'pk'     => $pk,
+					'cols'   => $cols,
+					'strict' => $strict,
 				);
 			}
 		}
 
+		self::$tables_cache = $tables;
 		return $tables;
+	}
+
+	/** Oublie le cache des tables (nouveau scan, tests). */
+	public static function flush(): void {
+		self::$tables_cache = null;
+	}
+
+	/**
+	 * @param string[] $patterns Motifs avec « * » comme joker.
+	 */
+	private static function matches_any( string $suffix, array $patterns ): bool {
+		foreach ( $patterns as $pattern ) {
+			$regex = '/^' . str_replace( '\*', '.*', preg_quote( strtolower( (string) $pattern ), '/' ) ) . '$/';
+			if ( preg_match( $regex, strtolower( $suffix ) ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static function count_tables(): int {
@@ -379,7 +467,8 @@ final class BCAMC_Sources {
 	}
 
 	/**
-	 * Curseur : array{t: int, id: int} (index de la table, dernière clé lue).
+	 * Curseur : array{t: int, id: int} (index de la table, dernière clé lue,
+	 * ou nombre de lignes déjà lues pour une table sans clé numérique).
 	 */
 	public static function batch_tables( $cursor, int $limit ): array {
 		global $wpdb;
@@ -387,6 +476,7 @@ final class BCAMC_Sources {
 		$tables = self::plugin_tables();
 		$cursor = is_array( $cursor ) ? $cursor : array( 't' => 0, 'id' => 0 );
 		$index  = (int) ( $cursor['t'] ?? 0 );
+		$from   = (int) ( $cursor['id'] ?? 0 );
 
 		if ( ! isset( $tables[ $index ] ) ) {
 			return array( 'entries' => array(), 'next' => null, 'processed' => 0 );
@@ -394,25 +484,47 @@ final class BCAMC_Sources {
 
 		$t    = $tables[ $index ];
 		$cols = implode( ', ', array_map( static fn( $c ) => '`' . $c . '`', $t['cols'] ) );
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT `{$t['pk']}` AS pk, {$cols} FROM `{$t['table']}` WHERE `{$t['pk']}` > %d ORDER BY `{$t['pk']}` ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				(int) ( $cursor['id'] ?? 0 ),
+		if ( '' !== $t['pk'] ) {
+			$sql = $wpdb->prepare(
+				"SELECT `{$t['pk']}` AS bcamc_pk, {$cols} FROM `{$t['table']}` WHERE `{$t['pk']}` > %d ORDER BY `{$t['pk']}` ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$from,
 				$limit
-			),
-			ARRAY_A
-		);
-
-		$entries = array();
-		$last    = (int) ( $cursor['id'] ?? 0 );
-		foreach ( $rows as $row ) {
-			$last = (int) $row['pk'];
-			unset( $row['pk'] );
-			$entries[] = array(
-				'source'    => 'table:' . substr( $t['table'], strlen( $wpdb->prefix ) ),
-				'source_id' => $last,
-				'text'      => implode( "\n", array_map( 'strval', $row ) ),
 			);
+		} else {
+			$sql = $wpdb->prepare( "SELECT 0 AS bcamc_pk, {$cols} FROM `{$t['table']}` LIMIT %d, %d", $from, $limit ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+		$rows = (array) $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		$source  = 'table:' . substr( $t['table'], strlen( $wpdb->prefix ) );
+		$entries = array();
+		$last    = $from;
+		foreach ( $rows as $i => $row ) {
+			$last = '' !== $t['pk'] ? (int) $row['bcamc_pk'] : $from + $i + 1;
+			unset( $row['bcamc_pk'] );
+
+			if ( ! $t['strict'] ) {
+				$entries[] = array(
+					'source'    => $source,
+					'source_id' => $last,
+					'text'      => implode( "\n", array_map( 'strval', $row ) ),
+				);
+				continue;
+			}
+
+			// Mode strict : chaque colonne est lue avec son nom, qui peut désigner un média.
+			foreach ( $row as $col => $value ) {
+				$value = (string) $value;
+				if ( '' === $value || '0' === $value ) {
+					continue;
+				}
+				$entries[] = array(
+					'source'    => $source,
+					'source_id' => $last,
+					'text'      => $value,
+					'key'       => (string) $col,
+					'strict'    => true,
+				);
+			}
 		}
 
 		if ( count( $rows ) < $limit ) {
@@ -422,6 +534,87 @@ final class BCAMC_Sources {
 		}
 
 		return array( 'entries' => $entries, 'next' => $next, 'processed' => count( $rows ) );
+	}
+
+	/* -------------------------------------------------------------------------
+	 * Champs média déclarés par les constructeurs de champs (ACF, JetEngine)
+	 * ---------------------------------------------------------------------- */
+
+	/**
+	 * Noms des champs de type image, fichier ou galerie. Une meta, une option ou
+	 * une colonne portant ce nom contient des IDs de médias, même si le nom
+	 * ne le laisse pas deviner (« visuel », « portrait », « plan_acces »...).
+	 *
+	 * @return string[]
+	 */
+	public static function media_field_keys(): array {
+		global $wpdb;
+		$defs = array();
+
+		// ACF : groupes enregistrés en base, en JSON local ou en PHP.
+		if ( function_exists( 'acf_get_field_groups' ) && function_exists( 'acf_get_fields' ) ) {
+			foreach ( (array) acf_get_field_groups() as $group ) {
+				$defs[] = (array) acf_get_fields( $group );
+			}
+		}
+		$acf = $wpdb->get_results( "SELECT post_excerpt, post_content FROM {$wpdb->posts} WHERE post_type = 'acf-field'", ARRAY_A );
+		foreach ( (array) $acf as $row ) {
+			$field = @unserialize( (string) $row['post_content'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors, WordPress.PHP.DiscouragedPHPFunctions
+			if ( is_array( $field ) ) {
+				$field['name'] = (string) $row['post_excerpt'];
+				$defs[]        = array( $field );
+			}
+		}
+
+		// JetEngine : meta boxes, puis types de contenus, contenus personnalisés et taxonomies.
+		$defs[] = (array) get_option( 'jet_engine_meta_boxes', array() );
+		foreach ( array( 'jet_post_types', 'jet_taxonomies' ) as $suffix ) {
+			$table = $wpdb->prefix . $suffix;
+			if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) ) {
+				continue;
+			}
+			$columns = array_map( 'strval', (array) $wpdb->get_col( "SHOW COLUMNS FROM `{$table}`" ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			if ( ! in_array( 'meta_fields', $columns, true ) ) {
+				continue;
+			}
+			foreach ( (array) $wpdb->get_col( "SELECT meta_fields FROM `{$table}`" ) as $raw ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$data = is_serialized( (string) $raw )
+					? @unserialize( (string) $raw, array( 'allowed_classes' => false ) ) // phpcs:ignore WordPress.PHP.NoSilencedErrors, WordPress.PHP.DiscouragedPHPFunctions
+					: json_decode( (string) $raw, true );
+				if ( is_array( $data ) ) {
+					$defs[] = $data;
+				}
+			}
+		}
+
+		$keys = array();
+		foreach ( $defs as $def ) {
+			self::collect_media_fields( $def, $keys, 0 );
+		}
+
+		$keys = (array) apply_filters( 'bcamc_media_field_keys', array_keys( $keys ) );
+		$keys = array_values( array_unique( array_filter( array_map( static fn( $k ) => strtolower( trim( (string) $k ) ), $keys ), static fn( $k ) => strlen( $k ) >= 3 ) ) );
+		sort( $keys );
+		return $keys;
+	}
+
+	/**
+	 * Parcourt une définition de champs et retient les noms des champs média,
+	 * à tous les niveaux (répéteurs, contenus flexibles, onglets).
+	 */
+	private static function collect_media_fields( $data, array &$keys, int $depth ): void {
+		if ( ! is_array( $data ) || $depth > 10 ) {
+			return;
+		}
+		if ( isset( $data['type'], $data['name'] ) && is_string( $data['type'] ) && is_string( $data['name'] )
+			&& in_array( strtolower( $data['type'] ), self::MEDIA_FIELD_TYPES, true ) ) {
+			$keys[ $data['name'] ] = true;
+		}
+		foreach ( $data as $value ) {
+			if ( is_array( $value ) ) {
+				self::collect_media_fields( $value, $keys, $depth + 1 );
+			}
+		}
 	}
 
 	/* -------------------------------------------------------------------------

@@ -230,7 +230,10 @@ final class BCAMC_Admin {
 		<?php $top = BCAMC_Report::items( '', 20 ); ?>
 		<?php if ( $top ) : ?>
 			<div class="bcamc-card">
-				<h2><?php esc_html_e( 'The 20 heaviest items', 'bca-media-cleaner' ); ?></h2>
+				<div class="bcamc-card-head">
+					<h2><?php esc_html_e( 'The 20 heaviest items', 'bca-media-cleaner' ); ?></h2>
+					<a class="button" href="<?php echo esc_url( BCAMC_Export::url() ); ?>"><span class="dashicons dashicons-download" aria-hidden="true"></span> <?php esc_html_e( 'Download everything (CSV)', 'bca-media-cleaner' ); ?></a>
+				</div>
 				<?php self::render_table( $top, true ); ?>
 			</div>
 		<?php endif; ?>
@@ -276,16 +279,21 @@ final class BCAMC_Admin {
 
 		<div class="bcamc-card">
 			<p class="description"><?php echo esc_html( BCAMC_Report::category_help( $category ) ); ?></p>
-			<p class="bcamc-list-total">
-				<?php
-				printf(
-					/* translators: 1: number of items, 2: total size */
-					esc_html( _n( '%1$s item, %2$s in total.', '%1$s items, %2$s in total.', $total, 'bca-media-cleaner' ) ),
-					esc_html( number_format_i18n( $total ) ),
-					esc_html( size_format( $summary['categories'][ $category ]['bytes'], 1 ) ?: '0 B' )
-				);
-				?>
-			</p>
+			<div class="bcamc-card-head">
+				<p class="bcamc-list-total">
+					<?php
+					printf(
+						/* translators: 1: number of items, 2: total size */
+						esc_html( _n( '%1$s item, %2$s in total.', '%1$s items, %2$s in total.', $total, 'bca-media-cleaner' ) ),
+						esc_html( number_format_i18n( $total ) ),
+						esc_html( size_format( $summary['categories'][ $category ]['bytes'], 1 ) ?: '0 B' )
+					);
+					?>
+				</p>
+				<?php if ( $total ) : ?>
+					<a class="button" href="<?php echo esc_url( BCAMC_Export::url( $category ) ); ?>"><span class="dashicons dashicons-download" aria-hidden="true"></span> <?php esc_html_e( 'Download this list (CSV)', 'bca-media-cleaner' ); ?></a>
+				<?php endif; ?>
+			</div>
 
 			<?php if ( $items ) : ?>
 				<?php self::render_table( $items, false ); ?>

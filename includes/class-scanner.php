@@ -47,6 +47,11 @@ final class BCAMC_Scanner {
 		$settings = array_merge( BCAMC_Settings::get(), $overrides );
 		$settings = BCAMC_Settings::sanitize( $settings );
 
+		// Noms des champs média (ACF, JetEngine) : utiles dès le comptage des colonnes de tables.
+		$media_keys = BCAMC_Sources::media_field_keys();
+		BCAMC_Extractor::set_media_keys( $media_keys );
+		BCAMC_Sources::flush();
+
 		$sources = BCAMC_Sources::all();
 		$totals  = array();
 		foreach ( $sources as $key => $source ) {
@@ -58,6 +63,7 @@ final class BCAMC_Scanner {
 			'started_at'  => time(),
 			'finished_at' => 0,
 			'settings'    => $settings,
+			'media_keys'  => $media_keys,
 			'cutoff'      => time() - $settings['min_age_days'] * DAY_IN_SECONDS,
 			'phase'       => 'index',
 			'sources'     => array_keys( $sources ),
@@ -166,13 +172,15 @@ final class BCAMC_Scanner {
 			return $state;
 		}
 
+		BCAMC_Extractor::set_media_keys( (array) ( $state['media_keys'] ?? array() ) );
+
 		// Les metas, options et lignes de tables sont plus légères qu'un contenu complet.
 		$limit  = 'posts' === $key ? $batch_size : $batch_size * 2;
 		$result = call_user_func( $sources[ $key ]['batch'], $state['cursor'], $limit );
 
 		$refs = array();
 		foreach ( (array) ( $result['entries'] ?? array() ) as $entry ) {
-			$found = BCAMC_Extractor::extract( (string) ( $entry['text'] ?? '' ), (string) ( $entry['key'] ?? '' ) );
+			$found = BCAMC_Extractor::extract( (string) ( $entry['text'] ?? '' ), (string) ( $entry['key'] ?? '' ), ! empty( $entry['strict'] ) );
 			$src   = (string) ( $entry['source'] ?? $key );
 			$sid   = (int) ( $entry['source_id'] ?? 0 );
 

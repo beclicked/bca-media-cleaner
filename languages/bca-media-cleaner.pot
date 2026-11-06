@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-06T14:42:41+00:00\n"
+"POT-Creation-Date: 2026-11-06T16:23:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: bca-media-cleaner\n"
@@ -70,6 +70,7 @@ msgid "The analysis is running. If you leave, you can resume it later."
 msgstr ""
 
 #: includes/class-admin.php:79
+#: includes/class-export.php:50
 msgid "You are not allowed to do this."
 msgstr ""
 
@@ -146,142 +147,153 @@ msgstr[1] ""
 msgid "See the list"
 msgstr ""
 
-#: includes/class-admin.php:233
+#: includes/class-admin.php:234
 msgid "The 20 heaviest items"
 msgstr ""
 
-#: includes/class-admin.php:240
+#: includes/class-admin.php:235
+msgid "Download everything (CSV)"
+msgstr ""
+
+#: includes/class-admin.php:243
 msgid "Where the space goes"
 msgstr ""
 
-#: includes/class-admin.php:241
+#: includes/class-admin.php:244
 msgid "Size of each folder inside the uploads folder. Folders other than the yearly ones belong to plugins (Elementor, forms, backups...): they are measured but never analyzed."
 msgstr ""
 
-#: includes/class-admin.php:243
+#: includes/class-admin.php:246
 msgid "Folder"
 msgstr ""
 
-#: includes/class-admin.php:243
+#: includes/class-admin.php:246
 msgid "Size"
 msgstr ""
 
-#: includes/class-admin.php:266
+#: includes/class-admin.php:269
 msgid "Back to the report"
 msgstr ""
 
 #. translators: 1: number of items, 2: total size
-#: includes/class-admin.php:283
+#: includes/class-admin.php:287
 msgid "%1$s item, %2$s in total."
 msgid_plural "%1$s items, %2$s in total."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin.php:309
+#: includes/class-admin.php:294
+msgid "Download this list (CSV)"
+msgstr ""
+
+#: includes/class-admin.php:317
 msgid "Nothing to report in this category."
 msgstr ""
 
-#: includes/class-admin.php:321
+#: includes/class-admin.php:329
 msgid "Preview"
 msgstr ""
 
-#: includes/class-admin.php:322
+#: includes/class-admin.php:330
 msgid "File"
 msgstr ""
 
-#: includes/class-admin.php:324
+#: includes/class-admin.php:332
+#: includes/class-export.php:86
 msgid "Category"
 msgstr ""
 
-#: includes/class-admin.php:326
+#: includes/class-admin.php:334
+#: includes/class-export.php:92
 msgid "Size on disk"
 msgstr ""
 
-#: includes/class-admin.php:327
+#: includes/class-admin.php:335
+#: includes/class-export.php:94
 msgid "Added"
 msgstr ""
 
 #. translators: %s: name of the image size
-#: includes/class-admin.php:354
+#: includes/class-admin.php:362
 msgid "Size \"%s\", no longer generated"
 msgstr ""
 
 #. translators: %s: number of files
-#: includes/class-admin.php:362
+#: includes/class-admin.php:370
 msgid "%s file in total (original, sizes and variants)"
 msgid_plural "%s files in total (original, sizes and variants)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin.php:382
+#: includes/class-admin.php:390
 msgid "What the analysis cannot see"
 msgstr ""
 
-#: includes/class-admin.php:383
+#: includes/class-admin.php:391
 msgid "A file listed here may still be used somewhere the analysis cannot read:"
 msgstr ""
 
-#: includes/class-admin.php:385
+#: includes/class-admin.php:393
 msgid "emails already sent, which link to a file on your site;"
 msgstr ""
 
-#: includes/class-admin.php:386
+#: includes/class-admin.php:394
 msgid "social media posts and other websites that point to one of your files;"
 msgstr ""
 
-#: includes/class-admin.php:387
+#: includes/class-admin.php:395
 msgid "SureCart products, which are stored outside WordPress;"
 msgstr ""
 
-#: includes/class-admin.php:388
+#: includes/class-admin.php:396
 msgid "addresses written directly in your theme files;"
 msgstr ""
 
-#: includes/class-admin.php:389
+#: includes/class-admin.php:397
 msgid "media stored on an external service or CDN storage."
 msgstr ""
 
-#: includes/class-admin.php:391
+#: includes/class-admin.php:399
 msgid "This is why a future version will place files in quarantine for several weeks before any deletion: a forgotten use shows up as a missing image, and the file is restored in one click."
 msgstr ""
 
-#: includes/class-admin.php:400
+#: includes/class-admin.php:408
 msgid "Settings"
 msgstr ""
 
-#: includes/class-admin.php:405
+#: includes/class-admin.php:413
 msgid "Ignore media added in the last"
 msgstr ""
 
-#: includes/class-admin.php:407
+#: includes/class-admin.php:415
 msgid "days"
 msgstr ""
 
-#: includes/class-admin.php:408
+#: includes/class-admin.php:416
 msgid "A file uploaded recently may simply not be inserted in a page yet."
 msgstr ""
 
-#: includes/class-admin.php:412
+#: includes/class-admin.php:420
 msgid "Documents"
 msgstr ""
 
-#: includes/class-admin.php:414
+#: includes/class-admin.php:422
 msgid "Also analyze documents (PDF, audio, office files...)"
 msgstr ""
 
-#: includes/class-admin.php:415
+#: includes/class-admin.php:423
 msgid "Off by default: documents are often shared outside the site (emails, social media), where the analysis cannot see them."
 msgstr ""
 
-#: includes/class-admin.php:419
+#: includes/class-admin.php:427
 msgid "Batch size"
 msgstr ""
 
-#: includes/class-admin.php:422
+#: includes/class-admin.php:430
 msgid "Number of items read at a time. Lower it if the analysis stops on a modest server."
 msgstr ""
 
-#: includes/class-admin.php:426
+#: includes/class-admin.php:434
 msgid "Changes apply to the next analysis."
 msgstr ""
 
@@ -305,6 +317,38 @@ msgstr ""
 
 #: includes/class-cli.php:174
 msgid "Unknown category. Use A, B or C."
+msgstr ""
+
+#: includes/class-export.php:87
+msgid "Media ID"
+msgstr ""
+
+#: includes/class-export.php:88
+msgid "Title"
+msgstr ""
+
+#: includes/class-export.php:89
+msgid "Image size"
+msgstr ""
+
+#: includes/class-export.php:90
+msgid "Path"
+msgstr ""
+
+#: includes/class-export.php:91
+msgid "Size on disk (bytes)"
+msgstr ""
+
+#: includes/class-export.php:93
+msgid "Files"
+msgstr ""
+
+#: includes/class-export.php:95
+msgid "File address"
+msgstr ""
+
+#: includes/class-export.php:96
+msgid "Edit link"
 msgstr ""
 
 #: includes/class-report.php:17
@@ -332,48 +376,48 @@ msgid "Files in the dated upload folders that belong to no media and are cited n
 msgstr ""
 
 #. translators: %s: name of the part of the site being read
-#: includes/class-scanner.php:278
+#: includes/class-scanner.php:286
 msgid "Reading: %s"
 msgstr ""
 
 #. translators: 1: media checked, 2: total media
-#: includes/class-scanner.php:284
+#: includes/class-scanner.php:292
 msgid "Checking media: %1$s of %2$s"
 msgstr ""
 
-#: includes/class-scanner.php:289
+#: includes/class-scanner.php:297
 msgid "Measuring the uploads folder"
 msgstr ""
 
-#: includes/class-sources.php:50
+#: includes/class-sources.php:86
 msgid "Content (all post types and statuses)"
 msgstr ""
 
-#: includes/class-sources.php:55
+#: includes/class-sources.php:91
 msgid "Content settings (Elementor, featured images, SEO, galleries)"
 msgstr ""
 
-#: includes/class-sources.php:60
+#: includes/class-sources.php:96
 msgid "Site settings (logo, icon, theme, widgets)"
 msgstr ""
 
-#: includes/class-sources.php:65
+#: includes/class-sources.php:101
 msgid "Categories and tags"
 msgstr ""
 
-#: includes/class-sources.php:70
+#: includes/class-sources.php:106
 msgid "User profiles"
 msgstr ""
 
-#: includes/class-sources.php:75
+#: includes/class-sources.php:111
 msgid "Comments"
 msgstr ""
 
-#: includes/class-sources.php:80
-msgid "Plugin tables (FluentCRM, Fluent Forms, FluentBooking...)"
+#: includes/class-sources.php:116
+msgid "Plugin tables (FluentCRM, Fluent Forms, JetEngine...)"
 msgstr ""
 
-#: includes/class-sources.php:85
+#: includes/class-sources.php:121
 msgid "Style sheets and code snippets"
 msgstr ""
 
